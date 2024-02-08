@@ -13,17 +13,17 @@ export const addItem = async (data) => {
   //   formData.append("category", data.category);
   //   formData.append("status", data.status);
   //   formData.append("photo", data.photo);
-
   try {
-    await axios.post(
-      "http://localhost:8080/addItem",
-      { params: data },
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const queryParams = new URLSearchParams(data).toString();
+    // const response = await fetch(
+    //   `http://localhost:8080/addItem?${queryParams}`
+    // );
+
+    await axios.post("http://localhost:8080/addItem?${queryParams}", null, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
   } catch (error) {
     console.error(error);
     alert("faild");
