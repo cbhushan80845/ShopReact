@@ -1,53 +1,75 @@
-import axios, { AxiosHeaders } from "axios";
+import axios from "axios";
 
-const BASE_URL = "http://localhost:8080";
+export const api = axios.create({
+  baseURL: "http://localhost:9192",
+});
 
-export const addItem = async (data) => {
-  //e.preventDefault();
-  //   const formData = new FormData();
-  //   formData.append("name", JSON.stringify(data["name"]), {
-  //     type: "application/json",
-  //   });
-  //   //   formData.append("name", data["name"]);
-  //   formData.append("name", data.name);
-  //   formData.append("category", data.category);
-  //   formData.append("status", data.status);
-  //   formData.append("photo", data.photo);
+export const getHeader = () => {
+  return {
+    "Content-Type": "multipart/form-data",
+  };
+};
+
+export async function addItems(photo, name, status, category) {
   try {
-    const queryParams = new URLSearchParams(data).toString();
-    // const response = await fetch(
-    //   `http://localhost:8080/addItem?${queryParams}`
-    // );
+    const formData = new FormData();
+    formData.append("photo", photo);
+    formData.append("name", name);
+    formData.append("status", status);
+    formData.append("category", category);
 
-    await axios.post("http://localhost:8080/addItem?${queryParams}", null, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+    const response = await api.post("/addItem", formData, {
+      "Content-Type": "multipart/form-data",
     });
-  } catch (error) {
-    console.error(error);
-    alert("faild");
-  }
-};
 
-export const getItem = async () => {
-  try {
-    //const response = await axios.get(API_URL);
-    //const result = await api.get("/items");
-    const result = await axios.get("http://localhost:8080/items");
-    return result.data;
+    if (response.status === 201) {
+      return true;
+    } else {
+      return false;
+    }
   } catch (error) {
-    console.error("Error fetching data:", error);
+    console.error("Error adding item:", error);
+    return false;
   }
-};
+}
+
+export async function getAllItems() {
+  try {
+    const response = await api.get("/items");
+    return response.data;
+  } catch (error) {
+    throw new Error("Error fetching items");
+  }
+}
 
 export async function deleteItem(id) {
-  // try {
-  //     const result = await api.delete(${id}), {
-  //         headers: AxiosHeaders(),
-  //     });
-  //     return result.data;
-  // } catch (error) {
-  //     throw new Error("delete not completed");
-  // }
+  try {
+    const result = await api.delete(`/item/${id}`, {
+      headers: getHeader(),
+    });
+    return result.data;
+  } catch (error) {
+    throw new Error(`delete not completed`);
+  }
+}
+export async function getItemById(id) {
+  try {
+    const result = await api.get(`/item/${id}`);
+
+    return result.data;
+  } catch (error) {
+    throw new Error(`Error fetching item ${error.message}`);
+  }
+}
+export async function updateItem(id, itemData) {
+  const formData = new FormData();
+  formData.append("category", itemData.category);
+  formData.append("satus", itemData.status);
+  formData.append("name", itemData.name);
+  formData.append("photo", itemData.photo);
+
+  const response = await api.put(`/item/update/${id}`, formData, {
+    headers: getHeader(),
+  });
+  return response;
 }
